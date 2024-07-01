@@ -18,3 +18,30 @@ const fetchNumber = async (type) => {
       return null;
     }
   };
+
+  // Utility function to calculate average
+const calculateAverage = (numbers) => {
+    const sum = numbers.reduce((acc, num) => acc + num, 0);
+    return (sum / numbers.length).toFixed(2);
+  };
+  
+  app.get('/numbers/:numberType', async (req, res) => {
+    const numberType = req.params.numberType;
+    const validTypes = ['p', 'f', 'e', 'r'];
+  
+    if (!validTypes.includes(numberType)) {
+      return res.status(400).json({ error: 'Invalid number type' });
+    }
+  
+    const prevState = [...numbersStore];
+  
+    const newNumber = await fetchNumber(numberType);
+    if (newNumber !== null && !numbersStore.includes(newNumber)) {
+      if (numbersStore.length >= windowSize) {
+        numbersStore.shift();
+      }
+      numbersStore.push(newNumber);
+    }
+  
+    const avg = numbersStore.length ? calculateAverage(numbersStore) : 0;
+  
